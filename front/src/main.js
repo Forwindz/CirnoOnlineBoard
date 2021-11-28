@@ -1,15 +1,12 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App'
-import router from './router'
+import { Icon, Button, Input, Popper, ColorPicker  } from 'arman-ui'
 
-Vue.config.productionTip = false
+const app = createApp(App)
+app.component(Icon.name, Icon)
+app.component(Button.name, Button)
+app.component(Input.name, Input)
+app.component(Popper.name, Popper)
+app.component(ColorPicker.name, ColorPicker)
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
-})
+app.mount('#app')
