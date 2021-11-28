@@ -3,11 +3,13 @@ cd front
 if "%1"=="-n" (
   echo Tip: Skip Build
 ) else (
+  rd /S /Q web
+  mkdir web
   call npm run-script build
 )
 echo ================
 cd ..
-xcopy ".\\front\\dist" ".\\back\\dist" /E /Y
+xcopy ".\\front\\web" ".\\back\\dist" /E /Y
 echo .
 echo .
 echo ================

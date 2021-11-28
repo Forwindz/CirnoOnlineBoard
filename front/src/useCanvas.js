@@ -36,11 +36,6 @@ export default function useCanvas (myCanvasRef) {
         clearRect()
     }
 
-    const eraser = () => {
-        stack.splice(0)
-        clearRect()
-    }
-
     const drawLine = () => {
         clearRect()
         stack.forEach(path => {
@@ -175,7 +170,7 @@ export default function useCanvas (myCanvasRef) {
     return {
         lineWidth, strokeColor,
         handleMousedown, handleTouchstart,
-        revoke, clear, downloadPng, play, eraser,
+        revoke, clear, downloadPng, play,
     }
 
     // 判断两个点是否太靠近 太近的点不要

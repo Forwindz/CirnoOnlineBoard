@@ -4,6 +4,8 @@ if "$1"=="-n"
 then
   echo Tip: Skip Build
 else
+  rm -rf web
+  mkdir web
   npm run-script build
 fi
 echo ================

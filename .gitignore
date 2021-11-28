@@ -3,6 +3,7 @@ back/node_modules/
 back/dist/
 front/node_modules/
 front/dist/
+front/web/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

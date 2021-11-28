@@ -3,39 +3,38 @@
     <APopper :value="showPopper" :reference="reference">
         <div class="setting-dropdown">
             <div class="control-item">
-                <span>Line width：</span>
+                <span>线宽：</span>
                 <AInput style="width: 120px;" type="number" :modelValue="lineWidth" @update:modelValue="$emit('update:lineWidth', $event)" />
             </div>
             <div class="control-item">
-                <span>Color：</span>
+                <span>颜色：</span>
                 <AColorPicker style="width: 120px;" :modelValue="strokeColor" @update:modelValue="$emit('update:strokeColor', $event)" />
             </div>
             <div class="control-item">
-                <span>Revoke：</span>
+                <span>撤销：</span>
                 <AIcon name="revoke" class="ui-icon" @click="$emit('revoke')" />
             </div>
             <div class="control-item">
-                <span>Clean：</span>
+                <span>清除：</span>
                 <AIcon name="clear" class="ui-icon" @click="$emit('clear')" />
             </div>
             <div class="control-item">
-                <span>Download：</span>
+                <span>下载：</span>
                 <AIcon name="download" class="ui-icon" @click="$emit('download')" />
             </div>
             <div class="control-item">
-                <span>Play：</span>
+                <span>播放：</span>
                 <AIcon name="play" class="ui-icon" @click="$emit('play')" />
             </div>
-            <div class="control-item">
-                <span>Eraser：</span>
-                <AIcon name="rectangle" class="ui-icon" @click="$emit('eraser')" />
-            </div>
+            
+            <button v-on:click="socketIOTest">Socket IO test</button>
         </div>
     </APopper>
 </template>
 
 <script>
     import { ref } from 'vue'
+    import {socket} from './socketManager'
 
     export default {
         props: {
@@ -55,7 +54,6 @@
             'clear',
             'download',
             'play',
-            'eraser',
         ],
         setup () {
             const reference = ref(null)
@@ -79,6 +77,17 @@
                 handleClick,
             }
         },
+        methods: {
+        //example of network manipulate
+            socketIOTest: function (event) {
+                // $socket is socket.io-client instance
+                console.log("Emit!")
+                // if you want to send information, just do like this:
+                // event_name, json data
+                socket.emit('emit_method test', {information:"click test infomation from client"})
+                console.log("End Emit!");
+            }
+        }
     }
 </script>
 

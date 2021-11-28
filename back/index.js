@@ -13,7 +13,7 @@ const io = require('socket.io')(server, {
 });
 
 app.use(express.static("static"));
-app.use('/static', express.static(__dirname + '/dist/static'));
+app.use('/drawing-board/web/static', express.static(__dirname + '/dist/static'));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/dist/index.html');
@@ -36,7 +36,7 @@ io.on('connection',function(socket){
       });
     socket.on('emit_method test', (msg) => {
       console.log('message from emit_method test: ' + msg.information);
-      io.emit('customEmit', { someProperty: 'some value', otherProperty: 'other value' });
+      io.emit('emit_method test', { someProperty: 'some value', otherProperty: 'other value' });
     });
 });
 

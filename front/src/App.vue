@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
     <canvas id="myCanvas" ref="myCanvasRef" @mousedown="handleMousedown" @touchstart="handleTouchstart" />
     <Sidebar
         v-model:lineWidth="lineWidth"
@@ -7,8 +6,7 @@
         @revoke="revoke"
         @clear="clear"
         @play="play"
-        @download="downloadPng" 
-        @eraser="eraser"/>
+        @download="downloadPng" />
 </template>
 
 <script>
@@ -30,33 +28,11 @@
             return {
                 lineWidth, strokeColor,
                 myCanvasRef, handleMousedown, handleTouchstart,
-                revoke, clear, downloadPng, play, eraser,
+                revoke, clear, downloadPng, play,
             }
-        },
+        }
     }
 
-=======
-  <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
-    <button v-on:click="socketIOTest">Socket IO test</button>
-  </div>
-</template>
-
-<script>
-export default {
-  name: 'App',
-  methods: {
-    //example of network manipulate
-    socketIOTest: function (event) {
-        // $socket is socket.io-client instance
-        console.log("Emit!")
-        // if you want to send information, just do like this:
-        this.$socket.emit('emit_method test', {information:"infomation from client"})
-    }
-  }
-}
->>>>>>> 36b170d951f7704072cef2505e22eb42b96deac8
 </script>
 
 <style>
