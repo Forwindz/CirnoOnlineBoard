@@ -10,7 +10,7 @@ else
 fi
 echo ================
 cd ..
-cp -avx "./front/dist" "./back/dist"
+cp -rf "./front/web" "./back/dist"
 echo .
 echo .
 echo ================
