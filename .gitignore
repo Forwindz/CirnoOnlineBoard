@@ -3,6 +3,8 @@ back/node_modules/
 back/dist/
 front/node_modules/
 front/dist/
+front/package-lock.json
+back/package-lock.json
 front/web/
 front/web/index.html
 npm-debug.log*
