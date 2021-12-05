@@ -5,6 +5,8 @@ module.exports = function (webpackEnv) {
         return {
             port: 7777,
             host: 'localhost',
+            publicPath: '/drawing-board/web/',
+            useSourceMap: true
         }
     } else if (webpackEnv === 'production') {
         return {

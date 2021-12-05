@@ -22,6 +22,7 @@ function removeItemOnce(arr, value) {
 
 app.use(express.static("static"));
 app.use('/drawing-board/web/static', express.static(__dirname + '/dist/static'));
+app.use('/static', express.static(__dirname + '/dist/static'));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/dist/index.html');
@@ -43,14 +44,14 @@ io.on('connection',function(socket){
     let uid = Math.floor(Math.random()*1000000000);
     curUserList.push(uid);
     console.log("A user is connected, send uid "+uid);
-    socket.emit('uid',{userID:uid});
+    socket.emit('uid',{uid:uid});
     socket.emit('users',{userList:curUserList});
     socket.emit('datas',{operationRecord:storeList})
-    socket.broadcast.emit('user_join',{userID:uid});
+    socket.broadcast.emit('user_join',{uid:uid});
     socket.on('disconnect', () => {
         console.log('user disconnected '+uid);
         removeItemOnce(curUserList,uid);
-        socket.broadcast.emit('user_exit',{userID:uid});
+        socket.broadcast.emit('user_exit',{uid:uid});
       });
     socket.on('emit_method test', (msg) => {
       console.log('message from emit_method test: ' + msg.information);

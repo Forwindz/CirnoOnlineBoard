@@ -6,11 +6,11 @@ then
 else
   rm -rf web
   mkdir web
-  npm run-script build
+  npm run-script buildTest
 fi
 echo ================
 cd ..
-cp -rf "./front/web" "./back/dist"
+cp -rf "./front/server" "./back/dist"
 echo .
 echo .
 echo ================

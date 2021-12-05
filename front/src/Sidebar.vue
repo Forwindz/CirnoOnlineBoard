@@ -85,6 +85,7 @@
                 // if you want to send information, just do like this:
                 // event_name, json data
                 socket.emit('emit_method test', {information:"click test infomation from client"})
+                socket.sendData({testData:123,test2:"123asd",test3:{test4:[123,"1"],test5:2.5}});
                 console.log("End Emit!");
             }
         }
