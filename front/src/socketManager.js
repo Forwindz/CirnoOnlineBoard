@@ -20,4 +20,10 @@ socket.on('emit_method test',function(e){
   console.log(e);
 });
 
+socket.onAny(function(eventName,e){
+  console.log("Receive "+eventName);
+  console.log(e);
+  console.log("------------")
+});
+
 export {socket}
