@@ -8,6 +8,10 @@ const socket = io("http://localhost:8080",{
 
 socket.emit('chat message', {information:"test infomation from client"});
 
+// socket.on('datatest', function(msg){
+//   console.log('message: ' + msg);
+// });
+
 socket.io.on('reconnect', (socket) => {
     console.log('reconnect to server');
   });

@@ -2,9 +2,15 @@ import { nextTick, ref, onMounted } from 'vue'
 import { throttle } from 'throttle-and-debounce'
 
 export default function useCanvas (myCanvasRef) {
+
+    var mydataCanvasRef = new Array();
+
     const initCanvasSize = () => {
         myCanvasRef.value.width = document.documentElement.clientWidth
         myCanvasRef.value.height = document.documentElement.clientHeight
+        
+        mydataCanvasRef[0] = myCanvasRef.value.width
+        mydataCanvasRef[1] = myCanvasRef.value.height
     }
     let myCanvasCtx = {}
     const clearRect = () => {
@@ -68,6 +74,7 @@ export default function useCanvas (myCanvasRef) {
         path.push({ x, y })
         stack.push(path)
         drawLine()
+            
         myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
         myCanvasRef.value.addEventListener('mouseup', handleMouseup)
     }
