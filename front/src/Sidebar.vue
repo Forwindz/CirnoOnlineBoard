@@ -35,7 +35,8 @@
 <script>
     import { ref } from 'vue'
     import {socket} from './socketManager'
-    import { mydataCanvasRef } from "./useCanvas";
+    import useCanvas from '@/useCanvas'
+    import gdata from './data/rawData'
 
     export default {
         props: {
@@ -86,11 +87,10 @@
                 // if you want to send information, just do like this:
                 // event_name, json data
                 socket.emit('emit_method test', {information:"click test infomation from client"})
-                socket.sendData({testData:123,test2:"123asd",test3:{test4:[123,"1"],test5:2.5}});
-                //socket.sendData({testData:123,test2:"123asd",test3:{test4:[123,"1"],test5:2.5}});
-                //socket.emit('datatest', {information:"123333333"}）
+                socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
                 console.log("End Emit!");
             }
+          
         }
     }
 </script>

@@ -1,16 +1,17 @@
 import { nextTick, ref, onMounted } from 'vue'
 import { throttle } from 'throttle-and-debounce'
+import gdata from './data/rawData'
+import {socket} from './socketManager'
+
 
 export default function useCanvas (myCanvasRef) {
 
-    var mydataCanvasRef = new Array();
 
     const initCanvasSize = () => {
         myCanvasRef.value.width = document.documentElement.clientWidth
         myCanvasRef.value.height = document.documentElement.clientHeight
-        
-        mydataCanvasRef[0] = myCanvasRef.value.width
-        mydataCanvasRef[1] = myCanvasRef.value.height
+        gdata.width = document.documentElement.clientWidth
+        gdata.height = document.documentElement.clientHeight
     }
     let myCanvasCtx = {}
     const clearRect = () => {
@@ -25,6 +26,7 @@ export default function useCanvas (myCanvasRef) {
         })
         initCanvasSize()
         window.onresize = initCanvasSize
+        //size.push(initCanvasSize)
     })
 
     let isDrawing = false // 播放的时候通过变量打断动画
@@ -49,10 +51,12 @@ export default function useCanvas (myCanvasRef) {
                 if (index === 0) { // 该路径样式
                     myCanvasCtx.lineWidth = value.width
                     myCanvasCtx.strokeStyle = value.color
+                   
                 } else if (index === 1) { // 该路径第一个点
                     myCanvasCtx.beginPath()
                     myCanvasCtx.moveTo(value.x, value.y)
                     myCanvasCtx.lineTo(value.x, value.y)
+               
                 } else { // 贝塞尔曲线优化
                     let x1 = array[index - 1].x, y1 = array[index - 1].y, x2 = value.x, y2 = value.y
                     let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
@@ -72,6 +76,18 @@ export default function useCanvas (myCanvasRef) {
         let x = e.clientX, y = e.clientY
         path.push({ 'width': lineWidth.value, 'color': strokeColor.value })
         path.push({ x, y })
+       
+        gdata.style = []
+        gdata.style.push({ 'width': lineWidth.value, 'color': strokeColor.value })
+        gdata.mousedown=true
+        gdata.mousemove = false
+        gdata.mouseup = false
+        gdata.position = []
+        gdata.position.push(x)
+        gdata.position.push(y)
+        
+        socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
+
         stack.push(path)
         drawLine()
             
@@ -82,6 +98,14 @@ export default function useCanvas (myCanvasRef) {
         let x = e.clientX, y = e.clientY
         if (isDistanceAllowed(path, x, y)) {
             path.push({ x, y })
+
+            gdata.mousemove = true
+            gdata.position = []
+            gdata.position.push(x)
+            gdata.position.push(y)
+
+            socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
+
             drawLine()
         }
     }
@@ -89,6 +113,15 @@ export default function useCanvas (myCanvasRef) {
     const handleMouseup = () => {
         isDrawing = false
         path = []
+
+        gdata.mouseup = true
+        gdata.mousedown = false
+        gdata.mousemove = false
+        gdata.position = []
+
+        socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
+
+
         myCanvasRef.value.removeEventListener('mousemove', handleMousemove)
         myCanvasRef.value.removeEventListener('mouseup', handleMouseup)
     }

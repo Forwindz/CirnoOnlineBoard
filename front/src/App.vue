@@ -13,8 +13,8 @@
     import { ref } from 'vue'
     import useCanvas from '@/useCanvas'
     import Sidebar from './Sidebar.vue'
-    import { mydataCanvasRef } from "./useCanvas"
     import {socket} from './socketManager'
+    import gdata from './data/rawData'
 
     export default {
         components: { Sidebar },
@@ -34,29 +34,7 @@
             }
         },
         methods: {
-        //example of network manipulate
-            // socketIOTest: function (event) {
-            //     // $socket is socket.io-client instance
-            //     console.log("Emit!")
-            //     // if you want to send information, just do like this:
-            //     // event_name, json data
-            //     socket.emit('emit_method test', {information:"click test infomation from client"})
-            //     socket.sendData({testData:123,test2:"123asd",test3:{test4:[123,"1"],test5:2.5}});
-            //     //socket.sendData({testData:123,test2:"123asd",test3:{test4:[123,"1"],test5:2.5}});
-            //     console.log("End Emit!");
-            // }
-            // testHtml() {
-            //     console.log("测试")
-            //     //socket.emit('emit_method test', {information:"click test infomation from client"})
-            //     socket.emit('chat message', {information:"11111"});
-            // },
- 
-            // mounted() {
-            // //定时任务方法
-            //     this.$nextTick(() => {
-            //     setInterval(this.testHtml, 5000);
-            //     });
-            // }
+       
         }
     }
 
