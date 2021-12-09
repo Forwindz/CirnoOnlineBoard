@@ -40,6 +40,10 @@ server.listen(8080,()=>{
 const storeList = [];
 const curUserList = [];
 
+function getTime(){
+  return (new Date()).valueOf();
+}
+
 io.on('connection',function(socket){  
     let uid = Math.floor(Math.random()*1000000000);
     curUserList.push(uid);
@@ -58,8 +62,9 @@ io.on('connection',function(socket){
       io.emit('emit_method test', { someProperty: 'some value', otherProperty: 'other value' });
     });
     socket.on('data',(msg)=>{
+      msg["stime"]=getTime(); //server time
       console.log("Receive data from "+uid+" -> "+JSON.stringify(msg));
-      msg["uid"] = uid;
+      msg["uid"] = uid; // sender id
       storeList.push(msg);
       socket.broadcast.emit('data',msg);
     });
