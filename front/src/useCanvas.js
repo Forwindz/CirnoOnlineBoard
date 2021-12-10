@@ -1,11 +1,10 @@
 import { nextTick, ref, onMounted } from 'vue'
 import { throttle } from 'throttle-and-debounce'
 import gdata from './data/rawData'
-import {socket} from './socketManager'
+import { socket } from './socketManager'
 
 
-export default function useCanvas (myCanvasRef) {
-
+export default function useCanvas(myCanvasRef) {
 
     const initCanvasSize = () => {
         myCanvasRef.value.width = document.documentElement.clientWidth
@@ -51,12 +50,12 @@ export default function useCanvas (myCanvasRef) {
                 if (index === 0) { // 该路径样式
                     myCanvasCtx.lineWidth = value.width
                     myCanvasCtx.strokeStyle = value.color
-                   
+
                 } else if (index === 1) { // 该路径第一个点
                     myCanvasCtx.beginPath()
                     myCanvasCtx.moveTo(value.x, value.y)
                     myCanvasCtx.lineTo(value.x, value.y)
-               
+
                 } else { // 贝塞尔曲线优化
                     let x1 = array[index - 1].x, y1 = array[index - 1].y, x2 = value.x, y2 = value.y
                     let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
@@ -76,21 +75,21 @@ export default function useCanvas (myCanvasRef) {
         let x = e.clientX, y = e.clientY
         path.push({ 'width': lineWidth.value, 'color': strokeColor.value })
         path.push({ x, y })
-       
+
         gdata.style = []
         gdata.style.push({ 'width': lineWidth.value, 'color': strokeColor.value })
-        gdata.mousedown=true
+        gdata.mousedown = true
         gdata.mousemove = false
         gdata.mouseup = false
         gdata.position = []
         gdata.position.push(x)
         gdata.position.push(y)
-        
-        socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
+
+        socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
 
         stack.push(path)
         drawLine()
-            
+
         myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
         myCanvasRef.value.addEventListener('mouseup', handleMouseup)
     }
@@ -104,7 +103,7 @@ export default function useCanvas (myCanvasRef) {
             gdata.position.push(x)
             gdata.position.push(y)
 
-            socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
+            socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
 
             drawLine()
         }
@@ -119,7 +118,7 @@ export default function useCanvas (myCanvasRef) {
         gdata.mousemove = false
         gdata.position = []
 
-        socket.sendData({userWidth:gdata.width,userHeight:gdata.height,userStyle:gdata.style,userMousedown:gdata.mousedown,userMouseove:gdata.mousemove,userMouseup:gdata.mouseup,pos:gdata.position});
+        socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
 
 
         myCanvasRef.value.removeEventListener('mousemove', handleMousemove)
@@ -214,7 +213,7 @@ export default function useCanvas (myCanvasRef) {
     }
 
     // 判断两个点是否太靠近 太近的点不要
-    function isDistanceAllowed (path, x, y) {
+    function isDistanceAllowed(path, x, y) {
         const min = 8
         const latestX = path[path.length - 1].x
         const latestY = path[path.length - 1].y
