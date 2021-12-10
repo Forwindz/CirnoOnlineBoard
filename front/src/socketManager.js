@@ -43,27 +43,48 @@ socket.sendData = function (data) {
     socket.emit('data', { time: getTime(), data: data });
 }
 
+//==========客户端接口在这里定义，在export处使用================
+
+//一次一个包
+function fetchPacket() {
+    return packetBuffer.shift();
+}
+//redo的开始序号
+function getRedoIndex() {
+    return redoIndex;
+}
+//获取当前队列所有数据（不一定非要用，除非能够确保当前缓冲区再无冲突可能）
+function getBuffer() {
+    return maintainBuffer;
+}
+
+//========================================================
+
+
 //========================================================
 // receive data
 
 // parameters for window control
-const windowSize = 3000;
+const windowSize = 18000;
+let redoIndex = 0;
 // client local buffer for mainting the packet sequences:
-let packetBuffer = [];
+let packetBuffer = [];      // window
+let maintainBuffer = [];    // local history 
+
 
 /**
  * Process packet once a time
  * @param {*} packet data include{stime, time, uid, data}
- * @returns {Number} return index of redo operation means redo [index...length]
+ * @returns {Number} return index of redo operation: means redo [index...length]
  */
 function processReceiveData(packet) {
 
     //TODO: process data and send command to UI
     let p = packet.stime;
-    console.log(p);
+    //console.log(p);
 
     if (p < packetBuffer[0]) {
-        packetBuffer(0, 0, packet);
+        packetBuffer.unshift(packet);
         return 0;
     }
     else if (p > packetBuffer.slice(-1).stime) {
@@ -80,7 +101,7 @@ function processReceiveData(packet) {
         packetBuffer.splice(index, 0, packet);
         console.log("sorting finished");
 
-        return index + 1;
+        return index;
     }
 }
 
@@ -147,4 +168,9 @@ socket.on("user_exit", (e) => {
     //TODO: remove UID information
 });
 
-export { socket }
+export {
+    socket,
+    fetchPacket,
+    getRedoIndex,
+    getBuffer
+}
