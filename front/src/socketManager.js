@@ -46,50 +46,63 @@ socket.sendData = function (data) {
 //========================================================
 // receive data
 
-
-// glabal buffer for mainting the packet sequences:
+// parameters for window control
+const windowSize = 3000;
+// client local buffer for mainting the packet sequences:
 let packetBuffer = [];
-// glabal variable for signal
-let fetch = true;
 
 /**
  * Process packet once a time
- * @param {*} data data include{stime, time, uid, data}
+ * @param {*} packet data include{stime, time, uid, data}
+ * @returns {Number} return index of redo operation means redo [index...length]
  */
 function processReceiveData(packet) {
 
     //TODO: process data and send command to UI
-    let tar = packet["stime"];
-    if (tar < packetBuffer.slice(-1).stime && tar >= packetBuffer[0]) {
-        fetch = false;
-        console.log("sorting...");
-        // sort and rearrange:
+    let p = packet.stime;
+    console.log(p);
 
+    if (p < packetBuffer[0]) {
+        packetBuffer(0, 0, packet);
+        return 0;
+    }
+    else if (p > packetBuffer.slice(-1).stime) {
+        packetBuffer.push(packet);
+        return -1;
+    }
+    else {
+        console.log("sorting...");
+        // sort
         let arr = [];
         for (let i of packetBuffer)
             arr.push(i.stime);
-
-        packetBuffer.splice(BrutalInsert(arr, tar), 0, packet);
-        console.log("packetbuffer:", packetBuffer);
-
+        let index = BrutalInsert(arr, p)
+        packetBuffer.splice(index, 0, packet);
         console.log("sorting finished");
+
+        return index + 1;
     }
-    else {
-        packetBuffer.push(packet);
-    }
-    fetch = true;
+}
+
+/**
+ * Process packets at the beginning for reading history
+ * @param {Array} packets data include{stime, time, uid, data}
+ */
+function processReceiveDatas(packets) {
+    packetBuffer.concat(packets);
+    return packetBuffer.length;
 }
 
 
 /**
  * Brutal Insert
- * @param arr array wait for sorting
+ * @param array array wait for sorting
  * @param target input element
  * @returns the index of insert element
  */
-function BrutalInsert(arr, target) {
+function BrutalInsert(array, target) {
     let index = 0;
-    for (let e of arr) {
+    for (let e of array) {
         if (target < e)
             return index;
         else
@@ -103,7 +116,11 @@ socket.on("data", (e) => {
 
     processReceiveData(e)
 });
-socket.on("datas", (e) => { processReceiveData(e.operationRecord) });
+socket.on("datas", (e) => {
+    console.log("Obtain a bunch of data from server history ");
+
+    processReceiveDatas(e.operationRecord)
+});
 
 socket.on("uid", (e) => {
     console.log("Obtain uid " + e.uid);
