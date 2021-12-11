@@ -45,16 +45,22 @@ socket.sendData = function (data) {
 
 //==========客户端接口在这里定义，在export处使用================
 
-//一次一个包
+//**一次获取一个包**
+//也就是说，undo是MYX来撤销前端已有的操作，redo是GX来做,MYX每次只是fetch包然后照旧执行
 function fetchPacket() {
-    return packetBuffer.shift();
+    redoCount--;
+    let pack = packetBuffer.shift();
+    maintainBuffer.push(pack);
+    console.log(pack.uid);
+    return pack;
 }
-//redo的开始序号
-function getRedoIndex() {
-    return redoIndex;
-}
-//获取当前队列所有数据（不一定非要用，除非能够确保当前缓冲区再无冲突可能）
+
+//获取当前队列所有数据（不一定非要用）,以供debug
 function getBuffer() {
+    return packetBuffer;
+}
+//获取本地历史所有数据（不一定非要用）,以供debug
+function getHistory() {
     return maintainBuffer;
 }
 
@@ -65,43 +71,51 @@ function getBuffer() {
 // receive data
 
 // parameters for window control
-const windowSize = 18000;
-let redoIndex = 0;
-// client local buffer for mainting the packet sequences:
-let packetBuffer = [];      // window
-let maintainBuffer = [];    // local history 
+const windowSize = 36000; // 10s * 3 people(depends on how many people linked) * 1200 opts
+let redoCount = 0; // redo opt rest count
+
+// buffer with undo-redo sign for fetching
+let packetBuffer = [];
+// local history (without undo-redo sign)
+let maintainBuffer = [];
 
 
 /**
- * Process packet once a time
+ * Process packet once a time (without lock)
  * @param {*} packet data include{stime, time, uid, data}
- * @returns {Number} return index of redo operation: means redo [index...length]
  */
 function processReceiveData(packet) {
 
-    //TODO: process data and send command to UI
-    let p = packet.stime;
-    //console.log(p);
+    let packetTimestamp = packet.stime;
 
-    if (p < packetBuffer[0]) {
-        packetBuffer.unshift(packet);
-        return 0;
+    if (packetTimestamp < packetBuffer[0].stime) {
+        let buffermap = maintainBuffer.map(a => a.stime);
+        let index = BrutalInsert(buffermap, packetTimestamp);
+        if (index < buffermap.length) {
+            // redo index in history buffer, then let packetBuffer have part of history for redo
+            maintainBuffer.splice(index, 0, packet);
+            redoCount = maintainBuffer.length - index;
+            console.log("index", index);
+            console.log("redoCount", redoCount);
+            packetBuffer = maintainBuffer.splice(-redoCount, redoCount).concat(packetBuffer);
+            //console.log("m",maintainBuffer);
+            //console.log("p",packetBuffer);
+        }
+        else {
+            packetBuffer.unshift(packet);
+            console.log("unshift", packetTimestamp);
+            console.log(packetBuffer);
+        }
     }
-    else if (p > packetBuffer.slice(-1).stime) {
+    else if (packetTimestamp > packetBuffer.slice(-1).stime) {
+        // simple add to rear
         packetBuffer.push(packet);
-        return -1;
     }
     else {
-        console.log("sorting...");
-        // sort
-        let arr = [];
-        for (let i of packetBuffer)
-            arr.push(i.stime);
-        let index = BrutalInsert(arr, p)
+        // sorting the packetBuffer
+        let buffermap = packetBuffer.map(a => a.stime);
+        let index = BrutalInsert(buffermap, packetTimestamp);
         packetBuffer.splice(index, 0, packet);
-        console.log("sorting finished");
-
-        return index;
     }
 }
 
@@ -110,7 +124,8 @@ function processReceiveData(packet) {
  * @param {Array} packets data include{stime, time, uid, data}
  */
 function processReceiveDatas(packets) {
-    packetBuffer.concat(packets);
+    packetBuffer = packetBuffer.concat(packets);
+    console.log("初次连接包长度:", packetBuffer.length);
     return packetBuffer.length;
 }
 
@@ -171,6 +186,46 @@ socket.on("user_exit", (e) => {
 export {
     socket,
     fetchPacket,
-    getRedoIndex,
-    getBuffer
+    getBuffer,
+    getHistory
 }
+
+
+// /**
+//  * Process packet once a time (without lock)
+//  * @param {*} packet data include{stime, time, uid, data}
+//  */
+//  function processReceiveData(packet) {
+
+//     let packetTimestamp = packet.stime;
+//     //console.log(p);
+
+//     //cut packetBuffer half then save to history in case too big
+//     if (packetBuffer.length > windowSize && redoCount == 0) {
+//         maintainBuffer = maintainBuffer.concat(packetBuffer.splice(0, windowSize / 2));
+//     }
+
+//     if (packetTimestamp < packetBuffer[0].stime) {
+//         let buffermap = maintainBuffer.map(a => a.stime);
+//         let index = BrutalInsert(buffermap, packetTimestamp)
+//         if (index != buffermap.length) {
+//             // redo index in history buffer, then let packetBuffer have part of history for redo
+//             redoCount = maintainBuffer.length - index;
+//             packetBuffer = maintainBuffer.splice(index, redoCount, packet).concat(packetBuffer);
+//         }
+//         else {
+//             // simply add to head
+//             packetBuffer.unshift(packet);
+//         }
+//     }
+//     else if (packetTimestamp > packetBuffer.slice(-1).stime) {
+//         // simple add to rear
+//         packetBuffer.push(packet);
+//     }
+//     else {
+//         // sorting the packetBuffer
+//         let buffermap = packetBuffer.map(a => a.stime);
+//         let index = BrutalInsert(buffermap, packetTimestamp);
+//         packetBuffer.splice(index, 0, packet);
+//     }
+// }
