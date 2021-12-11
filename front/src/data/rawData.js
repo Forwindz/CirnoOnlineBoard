@@ -1,4 +1,4 @@
-import { UserList,UserInfo } from "./userInfo";
+import { UserList,UserInfo } from "./userInfo.js";
 
 class Data{
     constructor(){

@@ -7,6 +7,7 @@
         @clear="clear"
         @play="play"
         @download="downloadPng" />
+    <UserListPanel/>
 </template>
 
 <script>
@@ -15,9 +16,10 @@
     import Sidebar from './Sidebar.vue'
     import {socket} from './socketManager'
     import gdata from './data/rawData'
+    import UserListPanel from './UserListPanel.vue'
 
     export default {
-        components: { Sidebar },
+        components: { Sidebar,UserListPanel },
         setup () {
             const myCanvasRef = ref(null)
 

@@ -11,6 +11,8 @@ fi
 echo ================
 cd ..
 cp -rf "./front/server/" "./back/dist/"
+cp -rf "./front/src/data/" "./back/lib/data/"
+cp -rf "./front/src/utils/" "./back/lib/utils/"
 echo .
 echo .
 echo ================

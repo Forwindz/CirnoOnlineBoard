@@ -6,6 +6,7 @@ front/dist/
 front/server/
 front/package-lock.json
 back/package-lock.json
+back/lib/
 front/web/
 front/web/index.html
 npm-debug.log*

@@ -1,7 +1,9 @@
-
+import EventPublisher from "../utils/Events.js";
 class UserInfo {
     constructor(uid) {
         this.uid = uid
+        this.representColor = "#000"
+        this.nick = "User"
     }
     //TODO: add more like nick name or avatar color
 }
@@ -9,10 +11,27 @@ class UserInfo {
 
 class UserList {
     constructor() {
-        this.users = [];
+        this.addUserEvent = new EventPublisher();
+        this.removeUserEvent = new EventPublisher();
+        this.users = {};
     }
 
-    addUser(user) {
+    setUsers(users){ // same as this.users
+        this.clearUsers();
+        let keys = Object.getOwnPropertyNames(users)
+        for (let k of keys){
+            this.addUser(users[k])
+        }
+    }
+
+    clearUsers(){
+        let keys = Object.getOwnPropertyNames(this.users)
+        for (let k of keys){
+            this.removeUser(k)
+        }
+    }
+
+    addUser(user) {//add user info
         if (user instanceof Array) {
             for (const u of user) {
                 this.addUser(u);
@@ -20,10 +39,14 @@ class UserList {
             return;
         }
         this.users[user.uid] = user;
+        this.addUserEvent.notify(this,this.users[user.uid])
     }
 
-    removeUser(user) {
-        delete this.users[user.uid];
+    removeUser(uid) { //input uid, not userinfo
+        if (this.users.hasOwnProperty(uid)){
+            this.removeUserEvent.notify(this,this.users[uid])
+            delete this.users[user.uid];
+        }
     }
 
     length() {
