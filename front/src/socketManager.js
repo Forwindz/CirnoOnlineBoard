@@ -88,6 +88,11 @@ function processReceiveData(packet) {
 
     let packetTimestamp = packet.stime;
 
+    if (packetBuffer.length == 0) {
+        packetBuffer.push(packet);
+        return;
+    }
+
     if (packetTimestamp < packetBuffer[0].stime) {
         let buffermap = maintainBuffer.map(a => a.stime);
         let index = BrutalInsert(buffermap, packetTimestamp);
