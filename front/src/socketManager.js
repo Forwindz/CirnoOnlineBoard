@@ -144,21 +144,22 @@ socket.on("datas", (e) => {
 });
 
 socket.on("uid", (e) => {
-    console.log("Obtain uid " + e.uid);
-    gdata.uid = e.uid;
+    console.log("Obtain uid " + e.userInfo.uid);
+    gdata.uid = e.userInfo.uid;
+    gdata.userInfo = e.userInfo;
     //TODO: store UID information
 });
 
 socket.on("users", (e) => {
     console.log("Obtain userList ");
     console.log(e.userList)
-    gdata.userList.addUser(e.userList);
+    gdata.userList.setUsers(e.userList);
     //TODO: store UID information
 });
 
 socket.on("user_join", (e) => {
-    console.log("User Joined " + e.uid);
-    gdata.userList.addUser(new UserInfo(e.uid));
+    console.log("User Joined " + e.userInfo.uid);
+    gdata.userList.addUser(e.userInfo);
     //TODO: store UID information
 });
 

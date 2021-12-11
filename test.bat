@@ -9,7 +9,12 @@ if "%1"=="-n" (
 )
 echo ================
 cd ..
+mkdir ".\\back\\dist"
+mkdir ".\\back\\lib\\data"
+mkdir ".\\back\\lib\\utils"
 xcopy ".\\front\\server" ".\\back\\dist" /E /Y
+xcopy ".\\front\\src\\data" ".\\back\\lib\\data" /E /Y
+xcopy ".\\front\\src\\utils" ".\\back\\lib\\utils" /E /Y
 echo .
 echo .
 echo ================
