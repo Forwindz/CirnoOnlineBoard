@@ -45,7 +45,7 @@ class UserList {
     removeUser(uid) { //input uid, not userinfo
         if (this.users.hasOwnProperty(uid)){
             this.removeUserEvent.notify(this,this.users[uid])
-            delete this.users[user.uid];
+            delete this.users[uid];
         }
     }
 

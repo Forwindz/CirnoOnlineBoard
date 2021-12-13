@@ -1,7 +1,11 @@
 import { nextTick, ref, onMounted } from 'vue'
 import { throttle } from 'throttle-and-debounce'
 import gdata from './data/rawData'
-import { socket } from './socketManager'
+import { socket,fetchPacket } from './socketManager'
+
+var path = [];
+var self = null;
+gdata.stack_g = [];
 
 
 export default function useCanvas(myCanvasRef) {
@@ -13,27 +17,32 @@ export default function useCanvas(myCanvasRef) {
         gdata.height = document.documentElement.clientHeight
     }
     let myCanvasCtx = {}
+    let myCanvasCtx_2 = {}
     const clearRect = () => {
         myCanvasCtx.clearRect(0, 0, myCanvasRef.value.width, myCanvasRef.value.height)
     }
 
     onMounted(() => {
         myCanvasCtx = myCanvasRef.value.getContext('2d')
+        myCanvasCtx_2 = myCanvasRef.value.getContext('2d')
         nextTick(() => {
             myCanvasCtx.lineJoin = 'round'
             myCanvasCtx.lineCap = 'round'
         })
         initCanvasSize()
         window.onresize = initCanvasSize
-        //size.push(initCanvasSize)
+        
     })
 
     let isDrawing = false // 播放的时候通过变量打断动画
 
     let lineWidth = ref('10')
     let strokeColor = ref('rgba(0,0,0,0.6)')
-    let path = []
     const stack = []
+
+    // gdata.stack = stack;
+    
+
     const revoke = () => {
         stack.pop()
         drawLine()
@@ -45,6 +54,7 @@ export default function useCanvas(myCanvasRef) {
 
     const drawLine = () => {
         clearRect()
+       
         stack.forEach(path => {
             path.forEach((value, index, array) => {
                 if (index === 0) { // 该路径样式
@@ -67,10 +77,36 @@ export default function useCanvas(myCanvasRef) {
                 }
             })
         })
+
+        gdata.stack_g.forEach(path2 => {
+                    path2.forEach((value, index, array) => {
+                        if (index === 0) { // 该路径样式
+                            myCanvasCtx.lineWidth = value.width
+                            myCanvasCtx.strokeStyle = value.color
+        
+                        } else if (index === 1) { // 该路径第一个点
+                            myCanvasCtx.beginPath()
+                            myCanvasCtx.moveTo(value.x, value.y)
+                            myCanvasCtx.lineTo(value.x, value.y)
+        
+                        } else { // 贝塞尔曲线优化
+                            let x1 = array[index - 1].x, y1 = array[index - 1].y, x2 = value.x, y2 = value.y
+                            let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
+                            myCanvasCtx.quadraticCurveTo(x1, y1, x3, y3)
+                        }
+                        if (index === path2.length - 1) {
+                            myCanvasCtx.lineTo(value.x, value.y)
+                            myCanvasCtx.stroke()
+                        }
+                    })
+                })      
+
     }
+
 
     // 鼠标事件
     const handleMousedown = e => {
+        // drawLine();
         isDrawing = true
         let x = e.clientX, y = e.clientY
         path.push({ 'width': lineWidth.value, 'color': strokeColor.value })
@@ -90,6 +126,8 @@ export default function useCanvas(myCanvasRef) {
         stack.push(path)
         drawLine()
 
+        //adddrawLine_v(myCanvasCtx);
+
         myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
         myCanvasRef.value.addEventListener('mouseup', handleMouseup)
     }
@@ -104,12 +142,14 @@ export default function useCanvas(myCanvasRef) {
             gdata.position.push(y)
 
             socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
-
+            //adddrawLine_v(myCanvasCtx);
             drawLine()
+            
         }
     }
     const handleMousemove = throttle(handleMousemoveCb, 8)
     const handleMouseup = () => {
+        //drawLine_g()
         isDrawing = false
         path = []
 
@@ -120,7 +160,7 @@ export default function useCanvas(myCanvasRef) {
 
         socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
 
-
+        //drawLine()
         myCanvasRef.value.removeEventListener('mousemove', handleMousemove)
         myCanvasRef.value.removeEventListener('mouseup', handleMouseup)
     }
@@ -206,11 +246,19 @@ export default function useCanvas(myCanvasRef) {
         anchor.click()
     }
 
-    return {
-        lineWidth, strokeColor,
-        handleMousedown, handleTouchstart,
-        revoke, clear, downloadPng, play,
+    self = {
+                lineWidth, strokeColor,
+                handleMousedown, handleTouchstart,drawLine,
+                revoke, clear, downloadPng, play,
     }
+
+    return self;
+
+    // return {
+    //     lineWidth, strokeColor,
+    //     handleMousedown, handleTouchstart,drawLine,
+    //     revoke, clear, downloadPng, play,
+    // }
 
     // 判断两个点是否太靠近 太近的点不要
     function isDistanceAllowed(path, x, y) {
@@ -220,3 +268,58 @@ export default function useCanvas(myCanvasRef) {
         return Math.abs(x - latestX) >= min || Math.abs(y - latestY) >= min
     }
 }
+
+
+async function dome() {
+    console.log('我着急')
+    await delay(3000)
+    console.log('我也是')
+    function delay(num) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve()
+            }, num)
+        })
+    };
+    let path2 = []
+    while(true) {
+        //console.log(1)
+
+        let test = fetchPacket()
+
+
+        if(test != null && test.uid != gdata.uid){
+        
+            if(test.data.pos[0] != undefined){
+
+                console.log(test.data.pos)
+
+                if(path2.length == 0){
+                    path2.push({ 'width': test.data.userStyle[0].width, 'color': test.data.userStyle[0].color })   
+                }
+
+                let x = test.data.pos[0];
+                let y = test.data.pos[1];
+                path2.push({ x, y })  
+                // gdata.stack_g.push(path2)
+                // path2 = [];
+            }
+            else{
+                gdata.stack_g.push(path2)
+                
+                path2 = [];
+            }
+            self.drawLine()
+            console.log(path2)
+                // console.log(gdata.stack_g.length);
+            if(gdata.stack_g.length != 0){
+                console.log(gdata.stack_g);
+                // console.log(gdata.stack_g[0][0].width);
+            }
+    
+        }
+        await delay(0)
+    }
+}
+
+dome()

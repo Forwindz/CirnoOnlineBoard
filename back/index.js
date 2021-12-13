@@ -83,7 +83,8 @@ io.on('connection', function (socket) {
         console.log("Receive data from " + uid + " -> " + JSON.stringify(msg));
         msg["uid"] = uid; // sender id
         storeList.push(msg);
-        socket.broadcast.emit('data', msg);
+        //socket.broadcast.emit('data', msg);
+        io.emit('data', msg);
     });
 });
 
