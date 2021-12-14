@@ -20,22 +20,7 @@ export default {
     };
   },
   created: function(){
-      gdata.userList.addUserEvent.add((source,userInfo)=>{
-          this.names.push(userInfo)
-      })
-      gdata.userList.removeUserEvent.add((source,userInfo)=>{
-          let i=0;
-          console.log(source);
-          console.log(userInfo);
-          for (;i<this.names.length;i++){
-            if(this.names[i].uid==userInfo.uid){
-              break;
-            }
-          }
-          if(i<this.names.length){
-            this.names = this.names.splice(i,1);
-          }
-      })
+      gdata.userList.bindAttr(this.names);
   }
 };
 </script>

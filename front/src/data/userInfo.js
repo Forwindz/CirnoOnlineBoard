@@ -52,6 +52,26 @@ class UserList {
     length() {
         return user.length;
     }
+
+    // sychnoize the attribute with user list
+    bindAttr(attr){
+        this.addUserEvent.add((source,e)=>{
+            cursorData.add(e)
+        });
+        this.removeUserEvent.remove((source,userInfo)=>{
+            let i=0;
+            console.log(source);
+            console.log(userInfo);
+            for (;i<attr.length;i++){
+              if(attr[i].uid==userInfo.uid){
+                break;
+              }
+            }
+            if(i<attr.length){
+              attr = attr.splice(i,1);
+            }
+        });
+    }
 }
 
 export { UserInfo, UserList }
