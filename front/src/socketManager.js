@@ -51,7 +51,7 @@ function fetchPacket() {
     redoCount--;
     let pack = packetBuffer.shift();
     maintainBuffer.push(pack);
-    console.log(pack.uid);
+    //console.log(pack.uid);
     return pack;
 }
 
