@@ -4,6 +4,7 @@ class UserInfo {
         this.uid = uid
         this.representColor = "#000"
         this.nick = "User"
+        this.userState= {}
     }
     //TODO: add more like nick name or avatar color
 }
@@ -56,12 +57,10 @@ class UserList {
     // sychnoize the attribute with user list
     bindAttr(attr){
         this.addUserEvent.add((source,e)=>{
-            cursorData.add(e)
+            attr.push(e)
         });
         this.removeUserEvent.remove((source,userInfo)=>{
             let i=0;
-            console.log(source);
-            console.log(userInfo);
             for (;i<attr.length;i++){
               if(attr[i].uid==userInfo.uid){
                 break;

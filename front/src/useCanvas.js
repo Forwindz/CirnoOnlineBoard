@@ -2,13 +2,19 @@ import { nextTick, ref, onMounted } from 'vue'
 import { throttle } from 'throttle-and-debounce'
 import gdata from './data/rawData'
 import { socket,fetchPacket } from './socketManager'
+import UserCanvasState from './UserCanvasState';
 
-var path = [];
 var self = null;
-gdata.stack_g = [];
 
-
+export {self}
 export default function useCanvas(myCanvasRef) {
+
+    
+    let myCanvasCtx = {}
+    let myCanvasCtx_2 = {}
+    let selfUserState = new UserCanvasState();
+    
+    let isDrawing = false // 播放的时候通过变量打断动画
 
     const initCanvasSize = () => {
         myCanvasRef.value.width = document.documentElement.clientWidth
@@ -16,8 +22,7 @@ export default function useCanvas(myCanvasRef) {
         gdata.width = document.documentElement.clientWidth
         gdata.height = document.documentElement.clientHeight
     }
-    let myCanvasCtx = {}
-    let myCanvasCtx_2 = {}
+
     const clearRect = () => {
         myCanvasCtx.clearRect(0, 0, myCanvasRef.value.width, myCanvasRef.value.height)
     }
@@ -34,138 +39,110 @@ export default function useCanvas(myCanvasRef) {
         
     })
 
-    let isDrawing = false // 播放的时候通过变量打断动画
-
-    let lineWidth = ref('10')
-    let strokeColor = ref('rgba(0,0,0,0.6)')
-    const stack = []
-
-    // gdata.stack = stack;
-    
-
     const revoke = () => {
-        stack.pop()
-        drawLine()
+        //selfUserState.stack.pop()
+        let pack = {};
+        pack.eventName="Revoke";
+        socket.sendData(pack);
     }
     const clear = () => {
-        stack.splice(0)
-        clearRect()
+        //selfUserState.stack.splice(0)
+        let pack = {};
+        pack.eventName="Clear";
+        socket.sendData(pack);
     }
 
     const drawLine = () => {
         clearRect()
-       
-        stack.forEach(path => {
-            path.forEach((value, index, array) => {
-                if (index === 0) { // 该路径样式
-                    myCanvasCtx.lineWidth = value.width
-                    myCanvasCtx.strokeStyle = value.color
 
-                } else if (index === 1) { // 该路径第一个点
-                    myCanvasCtx.beginPath()
-                    myCanvasCtx.moveTo(value.x, value.y)
-                    myCanvasCtx.lineTo(value.x, value.y)
-
-                } else { // 贝塞尔曲线优化
-                    let x1 = array[index - 1].x, y1 = array[index - 1].y, x2 = value.x, y2 = value.y
-                    let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
-                    myCanvasCtx.quadraticCurveTo(x1, y1, x3, y3)
-                }
-                if (index === path.length - 1) {
-                    myCanvasCtx.lineTo(value.x, value.y)
-                    myCanvasCtx.stroke()
-                }
-            })
-        })
-
-        gdata.stack_g.forEach(path2 => {
-                    path2.forEach((value, index, array) => {
-                        if (index === 0) { // 该路径样式
-                            myCanvasCtx.lineWidth = value.width
-                            myCanvasCtx.strokeStyle = value.color
-        
-                        } else if (index === 1) { // 该路径第一个点
-                            myCanvasCtx.beginPath()
-                            myCanvasCtx.moveTo(value.x, value.y)
-                            myCanvasCtx.lineTo(value.x, value.y)
-        
-                        } else { // 贝塞尔曲线优化
-                            let x1 = array[index - 1].x, y1 = array[index - 1].y, x2 = value.x, y2 = value.y
-                            let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
-                            myCanvasCtx.quadraticCurveTo(x1, y1, x3, y3)
-                        }
-                        if (index === path2.length - 1) {
-                            myCanvasCtx.lineTo(value.x, value.y)
-                            myCanvasCtx.stroke()
-                        }
-                    })
-                })      
+        gdata.canvasStack.forEach(path2 => {
+            myCanvasCtx.lineWidth = path2.width
+            myCanvasCtx.strokeStyle = path2.color
+            console.log(path2);
+            path2.pos.forEach((value, index, array) => {
+                if (index === 0) { 
+                     myCanvasCtx.beginPath()
+                     myCanvasCtx.moveTo(value.x, value.y)
+                     myCanvasCtx.lineTo(value.x, value.y)
+                 } else { 
+                     let x1 = array[index - 1].x, y1 = array[index - 1].y, x2 = value.x, y2 = value.y
+                     let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
+                     myCanvasCtx.quadraticCurveTo(x1, y1, x3, y3)
+                 }
+                 if (index === path2.pos.length - 1) {
+                     myCanvasCtx.lineTo(value.x, value.y)
+                     myCanvasCtx.stroke()
+                 }
+             })
+         })      
 
     }
+
 
 
     // 鼠标事件
     const handleMousedown = e => {
-        // drawLine();
         isDrawing = true
         let x = e.clientX, y = e.clientY
-        path.push({ 'width': lineWidth.value, 'color': strokeColor.value })
-        path.push({ x, y })
 
-        gdata.style = []
-        gdata.style.push({ 'width': lineWidth.value, 'color': strokeColor.value })
-        gdata.mousedown = true
-        gdata.mousemove = false
-        gdata.mouseup = false
-        gdata.position = []
-        gdata.position.push(x)
-        gdata.position.push(y)
+        let pack = {}
+        pack.style = []
+        pack.eventName= "MouseDown";
+        pack.x = x;
+        pack.y = y;
 
-        socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
-
-        stack.push(path)
-        drawLine()
-
-        //adddrawLine_v(myCanvasCtx);
+        socket.sendData(pack);
 
         myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
         myCanvasRef.value.addEventListener('mouseup', handleMouseup)
     }
+
+
     const handleMousemoveCb = e => {
         let x = e.clientX, y = e.clientY
-        if (isDistanceAllowed(path, x, y)) {
-            path.push({ x, y })
-
-            gdata.mousemove = true
-            gdata.position = []
-            gdata.position.push(x)
-            gdata.position.push(y)
-
-            socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
-            //adddrawLine_v(myCanvasCtx);
-            drawLine()
-            
+        
+        if (isDistanceAllowed(selfUserState.path, x, y)) {
+            let pack = {};
+            pack.eventName= "MouseMove";
+            pack.x=x;
+            pack.y=y;
+            socket.sendData(pack);
         }
     }
+
     const handleMousemove = throttle(handleMousemoveCb, 8)
     const handleMouseup = () => {
-        //drawLine_g()
         isDrawing = false
-        path = []
+        let pack = {};
+        pack.eventName= "MouseUp";
+        socket.sendData(pack);
 
-        gdata.mouseup = true
-        gdata.mousedown = false
-        gdata.mousemove = false
-        gdata.position = []
-
-        socket.sendData({ userWidth: gdata.width, userHeight: gdata.height, userStyle: gdata.style, userMousedown: gdata.mousedown, userMouseove: gdata.mousemove, userMouseup: gdata.mouseup, pos: gdata.position });
-
-        //drawLine()
         myCanvasRef.value.removeEventListener('mousemove', handleMousemove)
         myCanvasRef.value.removeEventListener('mouseup', handleMouseup)
     }
 
-    // 触摸事件
+
+
+    const handleLineWidthChange = (newv,oldv)=>{
+        let pack = {};
+        pack.eventName= "LineWidthChange";
+        pack.newv = newv;
+        pack.oldv = oldv; //keep old value, for undo
+        socket.sendData(pack);
+    }
+
+
+    const handleStrokeColorChange = (newv,oldv)=>{
+        let pack = {};
+        pack.eventName= "StrokeColorChange";
+        pack.newv = newv;
+        pack.oldv = oldv;
+        socket.sendData(pack);
+    }
+
+
+    // touch event, not processed
+    
     const handleTouchstart = e => {
         e.preventDefault()
         isDrawing = true
@@ -180,7 +157,7 @@ export default function useCanvas(myCanvasRef) {
     const handleTouchmoveCb = e => {
         e.preventDefault()
         let x = e.touches[0].clientX, y = e.touches[0].clientY
-        if (isDistanceAllowed(path, x, y)) {
+        if (isDistanceAllowed(selfUserState.path, x, y)) {
             path.push({ x, y })
             drawLine()
         }
@@ -193,6 +170,7 @@ export default function useCanvas(myCanvasRef) {
         myCanvasRef.value.removeEventListener('touchmove', handleTouchmove)
         myCanvasRef.value.removeEventListener('touchend', handleTouchend)
     }
+    
 
     const play = () => {
         const taskList = stack.flat()
@@ -247,79 +225,25 @@ export default function useCanvas(myCanvasRef) {
     }
 
     self = {
-                lineWidth, strokeColor,
-                handleMousedown, handleTouchstart,drawLine,
-                revoke, clear, downloadPng, play,
+        //lineWidth, strokeColor, 
+        selfUserState,
+        handleLineWidthChange,handleStrokeColorChange,
+        handleMousedown, handleTouchstart,drawLine,
+        revoke, clear, downloadPng, play
+
     }
 
     return self;
 
-    // return {
-    //     lineWidth, strokeColor,
-    //     handleMousedown, handleTouchstart,drawLine,
-    //     revoke, clear, downloadPng, play,
-    // }
-
     // 判断两个点是否太靠近 太近的点不要
     function isDistanceAllowed(path, x, y) {
-        const min = 8
-        const latestX = path[path.length - 1].x
-        const latestY = path[path.length - 1].y
+        const min = 5;
+        console.log(path);
+        if(path.pos.length==0){
+            return true;
+        }
+        const latestX = path.pos[path.pos.length - 1].x
+        const latestY = path.pos[path.pos.length - 1].y
         return Math.abs(x - latestX) >= min || Math.abs(y - latestY) >= min
     }
 }
-
-
-async function dome() {
-    console.log('我着急')
-    await delay(3000)
-    console.log('我也是')
-    function delay(num) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve()
-            }, num)
-        })
-    };
-    let path2 = []
-    while(true) {
-        //console.log(1)
-
-        let test = fetchPacket()
-
-
-        if(test != null && test.uid != gdata.uid){
-        
-            if(test.data.pos[0] != undefined){
-
-                console.log(test.data.pos)
-
-                if(path2.length == 0){
-                    path2.push({ 'width': test.data.userStyle[0].width, 'color': test.data.userStyle[0].color })   
-                }
-
-                let x = test.data.pos[0];
-                let y = test.data.pos[1];
-                path2.push({ x, y })  
-                // gdata.stack_g.push(path2)
-                // path2 = [];
-            }
-            else{
-                gdata.stack_g.push(path2)
-                
-                path2 = [];
-            }
-            self.drawLine()
-            console.log(path2)
-                // console.log(gdata.stack_g.length);
-            if(gdata.stack_g.length != 0){
-                console.log(gdata.stack_g);
-                // console.log(gdata.stack_g[0][0].width);
-            }
-    
-        }
-        await delay(0)
-    }
-}
-
-dome()

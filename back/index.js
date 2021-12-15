@@ -48,6 +48,10 @@ function getTime() {
     return (new Date()).valueOf();
 }
 
+function generateRandomColor(){
+    this.colorAngle = Math.floor(Math.random()*360);
+    this.color = 'hsla('+ this.colorAngle +',100%,50%,1)';
+}
 
 function generateUser(){
     let user = new UserInfo(Math.floor(Math.random() * 1000000000));

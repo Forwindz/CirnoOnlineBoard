@@ -4,6 +4,8 @@ class Data{
     constructor(){
         this.userList = new UserList();
         this.uid = null;
+        this.canvasStack = [];
+        this.canvasDirty = false;
     }
     
 }

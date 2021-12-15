@@ -13,10 +13,12 @@
 <script>
     import { ref } from 'vue'
     import useCanvas from '@/useCanvas'
+    import {self} from '@/useCanvas'
     import Sidebar from './Sidebar.vue'
     import {socket} from './socketManager'
     import gdata from './data/rawData'
     import UserListPanel from './UserListPanel.vue'
+    import {dome} from './ReceivePackage'
 
     export default {
         components: { Sidebar,UserListPanel },
@@ -24,19 +26,36 @@
             const myCanvasRef = ref(null)
 
             const {
-                lineWidth, strokeColor,
-                handleMousedown, handleTouchstart,
-                revoke, clear, downloadPng, play,
+                //lineWidth, strokeColor, 
+                selfUserState,
+                handleLineWidthChange,handleStrokeColorChange,
+                handleMousedown, handleTouchstart,drawLine,
+                revoke, clear, downloadPng, play
+
             } = useCanvas(myCanvasRef)
 
             return {
-                lineWidth, strokeColor,
+                //lineWidth, strokeColor,
                 myCanvasRef, handleMousedown, handleTouchstart,
                 revoke, clear, downloadPng, play,
             }
         },
+        data:function() {
+            return {
+                strokeColor:'#000000EE',
+                lineWidth:10
+            }
+        },
         methods: {
        
+        },
+        watch:{
+            lineWidth:function (newv,oldv){
+                self.handleLineWidthChange(newv,oldv);
+            },
+            strokeColor:function(newv,oldv){
+                self.handleStrokeColorChange(newv,oldv);
+            }
         }
     }
 
