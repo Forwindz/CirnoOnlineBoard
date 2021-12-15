@@ -49,14 +49,23 @@ function getTime() {
 }
 
 function generateRandomColor(){
-    this.colorAngle = Math.floor(Math.random()*360);
-    this.color = 'hsla('+ this.colorAngle +',100%,50%,1)';
+    let colorAngle = Math.floor(Math.random()*360);
+    let color = 'hsla('+ colorAngle +',50%,40%,1)';
+    return color;
 }
 
+var randomName=[
+    "Amy","Bob","Cirno","Daniel","Ellen","Flask","Gusha","Hawaii","Ice","Jim","Klein","Lemon","Mary","Nico",
+    "Offer","Paper","QQ","Random","Smith","Talent","UV","Visual Studio","WW","XR","Yarn","Zed"
+]
+
+function randomFetch(arr){
+    return arr[Math.floor((Math.random()*arr.length))];
+}
 function generateUser(){
     let user = new UserInfo(Math.floor(Math.random() * 1000000000));
-    user.color = "#283";
-    user.nick = "Guest_"+user.uid
+    user.color = generateRandomColor();
+    user.nick = randomFetch(randomName)+"#"+user.uid
     return user;
 }
 
