@@ -7,6 +7,7 @@
           :color="it.color"
           :x="it.x"
           :y="it.y"
+          :uid="it.uid"
           :index="index"
         />
     </div>
@@ -48,10 +49,6 @@ export default {
         });
     },
     watch:{
-        cursorsData:function(newv,oldv){
-            console.log(newv);
-            console.log(oldv);
-        }
     },
     computed:{
     }

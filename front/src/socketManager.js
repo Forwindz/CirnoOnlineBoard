@@ -9,28 +9,28 @@ const socket = io("http://localhost:8080", {
 socket.emit('chat message', { information: "test infomation from client" });
 
 // socket.on('datatest', function(msg){
-//   console.log('message: ' + msg);
+//   //console.log('message: ' + msg);
 // });
 
 socket.io.on('reconnect', (socket) => {
-    console.log('reconnect to server');
+    //console.log('reconnect to server');
 });
 
 socket.on("connect", () => {
-    console.log("connected to server: " + socket.connected); // true
+    //console.log("connected to server: " + socket.connected); // true
 });
 
 // receive data package, if the event name is emit_method test
 socket.on('emit_method test', function (e) {
-    console.log("Receive message from server test");
-    console.log(e);
+    //console.log("Receive message from server test");
+    //console.log(e);
 });
 
 //for debug
 socket.onAny(function (eventName, e) {
-    console.log("Receive " + eventName);
-    console.log(e);
-    console.log("------------")
+    //console.log("Receive " + eventName);
+    //console.log(e);
+    //console.log("------------")
 });
 
 //========================================================
@@ -112,7 +112,7 @@ function processReceiveData(packet) {
         }
         else { // 有当前
             if (undoCount > 0) {
-                console.log("无历史但undo没有进行完");
+                //console.log("无历史但undo没有进行完");
                 undoBuffer = packetBuffer.splice(0, undoCount); // cut undo then brutal insert
                 let map = packetBuffer.map(a => a.stime);
                 let index = BrutalInsert(map, packetTimestamp);
@@ -147,41 +147,41 @@ function processReceiveData(packet) {
         else {
             // 小于当前队列最小
             if (packetTimestamp < packetBuffer[0].stime) {
-                console.log("小于当前队列最小");
+                //console.log("小于当前队列最小");
                 // 又在历史队列与当前队列之间
                 let gapTime = 0
                 if (maintainBuffer.length > 0) {
                     let gapPacket = maintainBuffer[maintainBuffer.length - 1];
                     gapTime = gapPacket.stime;
                 }
-                console.log(packetTimestamp, gapTime);
+                //console.log(packetTimestamp, gapTime);
                 if (packetTimestamp >= gapTime) { //可能相等（某些路由策略）
-                    console.log("又在历史队列与当前队列之间");
+                    //console.log("又在历史队列与当前队列之间");
                     // 当前队列已经undo过
                     if (undoCount > 0) {
-                        console.log("当前队列已经undo过");
+                        //console.log("当前队列已经undo过");
                         undoBuffer = packetBuffer.splice(0, undoCount); // cut undo then brutal insert
                         let map = packetBuffer.map(a => a.stime);
                         let index = BrutalInsert(map, packetTimestamp);
                         packetBuffer.splice(index, 0, packet);
                         packetBuffer = undoBuffer.concat(packetBuffer); // paste undo
                     } else { // 没undo就直接插入
-                        console.log("没undo就直接插入");
+                        //console.log("没undo就直接插入");
                         //let map = packetBuffer.map(a => a.stime);
                         //let index = BrutalInsert(map, packetTimestamp);
                         //packetBuffer.splice(index,0,packet);
                         //packetBuffer.splice(0,0,packet);
                         packetBuffer.unshift(packet);
-                        console.log("unshift", packetTimestamp);
-                        console.log(packetBuffer);
+                        //console.log("unshift", packetTimestamp);
+                        //console.log(packetBuffer);
                     }
                 } else { // 还小于历史队列
-                    console.log("还小于历史队列");
+                    //console.log("还小于历史队列");
                     let buffermap = maintainBuffer.map(a => a.stime);
                     let index = BrutalInsert(buffermap, packetTimestamp);
                     // 已经undo过
                     if (undoCount > 0) { // 新的乱序包整理之后，加到undo之后和redo之前的中间位置
-                        console.log("已经undo过");
+                        //console.log("已经undo过");
                         maintainBuffer.splice(index, 0, packet); // insert ahead splice
                         redoCount = maintainBuffer.length - index;
 
@@ -193,9 +193,9 @@ function processReceiveData(packet) {
                         //组装
                         let rest = packetBuffer.splice(undoCount);
                         packetBuffer = packetBuffer.concat(reversetemp).concat(temp).concat(rest);
-                        //console.log("packetBuffer", packetBuffer);
+                        ////console.log("packetBuffer", packetBuffer);
                     } else { // 没有undo过
-                        console.log("没有undo过");
+                        //console.log("没有undo过");
                         // redo index in history buffer, then let packetBuffer have part of history for undo then redo
                         maintainBuffer.splice(index, 0, packet);
                         redoCount = maintainBuffer.length - index;
@@ -210,20 +210,20 @@ function processReceiveData(packet) {
                     }
                 }
             } else if (packetTimestamp > packetBuffer.slice(-1).stime) {
-                console.log("在最后");
+                //console.log("在最后");
                 // simple add to rear
                 packetBuffer.push(packet);
             } else { // sorting the packetBuffer
                 // 如果有undo就先去掉undo插入再补上undo
                 if (undoCount > 0) {
-                    console.log("如果有undo就先去掉undo插入再补上undo");
+                    //console.log("如果有undo就先去掉undo插入再补上undo");
                     undoBuffer = packetBuffer.splice(0, undoCount); // cut undo then brutal insert
                     let map = packetBuffer.map(a => a.stime);
                     let index = BrutalInsert(map, packetTimestamp);
                     packetBuffer.splice(index, 0, packet);
                     packetBuffer = undoBuffer.concat(packetBuffer); // paste undo
                 } else { // 直接插入到中间
-                    console.log("直接插入到中间");
+                    //console.log("直接插入到中间");
                     let buffermap = packetBuffer.map(a => a.stime);
                     let index = BrutalInsert(buffermap, packetTimestamp);
                     packetBuffer.splice(index, 0, packet);
@@ -243,7 +243,7 @@ function processReceiveData(packet) {
  */
 function processReceiveDatas(packets) {
     packetBuffer = packetBuffer.concat(packets);
-    console.log("初次连接包长度:", packetBuffer.length);
+    //console.log("初次连接包长度:", packetBuffer.length);
     return packetBuffer.length;
 }
 
@@ -266,38 +266,38 @@ function BrutalInsert(array, target) {
 }
 
 socket.on("data", (e) => {
-    console.log("Obtain single data from " + e.uid);
+    //console.log("Obtain single data from " + e.uid);
 
     processReceiveData(e)
 });
 socket.on("datas", (e) => {
-    console.log("Obtain a bunch of data from server history ");
+    //console.log("Obtain a bunch of data from server history ");
 
     processReceiveDatas(e.operationRecord)
 });
 
 socket.on("uid", (e) => {
-    console.log("Obtain uid " + e.userInfo.uid);
+    //console.log("Obtain uid " + e.userInfo.uid);
     gdata.uid = e.userInfo.uid;
     gdata.userInfo = e.userInfo;
     //TODO: store UID information
 });
 
 socket.on("users", (e) => {
-    console.log("Obtain userList ");
-    console.log(e.userList)
+    //console.log("Obtain userList ");
+    //console.log(e.userList)
     gdata.userList.setUsers(e.userList);
     //TODO: store UID information
 });
 
 socket.on("user_join", (e) => {
-    console.log("User Joined " + e.userInfo.uid);
+    //console.log("User Joined " + e.userInfo.uid);
     gdata.userList.addUser(e.userInfo);
     //TODO: store UID information
 });
 
 socket.on("user_exit", (e) => {
-    console.log("User exited " + e.uid);
+    //console.log("User exited " + e.uid);
     gdata.userList.removeUser(e.uid);
     //TODO: remove UID information
 });
@@ -317,7 +317,7 @@ export {
 //  function processReceiveData(packet) {
 
 //     let packetTimestamp = packet.stime;
-//     //console.log(p);
+//     ////console.log(p);
 
 //     //cut packetBuffer half then save to history in case too big
 //     if (packetBuffer.length > windowSize && redoCount == 0) {

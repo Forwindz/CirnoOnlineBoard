@@ -1,5 +1,5 @@
 <template>
-    <div v-bind:style = "posStyle">
+    <div v-bind:style = "posStyle" v-if="gdata.uid!=uid">
         <svg style="width:18px;height:18px">
             <g>
                 <polygon class="lineStyle" v-bind:style="svgStyle" points="7 6 12 18 14 13 19 11 7 6"/>
@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import gdata from "./data/rawData";
 
 export default {
     name:"Cursor",
@@ -17,7 +18,11 @@ export default {
         color:String,
         nick:String,
         x:[String,Number],
-        y:[String,Number]
+        y:[String,Number],
+        uid:Number
+    },
+    data:()=>{
+        return {gdata:gdata}
     },
     setup() {
         
@@ -37,7 +42,7 @@ export default {
         },
         shortNick(){
             if(this.nick.length>7){
-                return this.nick.substring(6);
+                return this.nick.substring(0,6);
             }
             return this.nick;
         }

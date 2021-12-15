@@ -59,7 +59,7 @@ export default function useCanvas(myCanvasRef) {
         gdata.canvasStack.forEach(path2 => {
             myCanvasCtx.lineWidth = path2.width
             myCanvasCtx.strokeStyle = path2.color
-            console.log(path2);
+            //console.log(path2);
             path2.pos.forEach((value, index, array) => {
                 if (index === 0) { 
                      myCanvasCtx.beginPath()
@@ -185,7 +185,7 @@ export default function useCanvas(myCanvasRef) {
             for (let i = 0; i < currentStep; i++) {
                 const currentDot = taskList[i]
                 if (currentDot.width) {
-                    console.log(currentDot.style)
+                    //console.log(currentDot.style)
                     myCanvasCtx.lineWidth = currentDot.width
                     myCanvasCtx.strokeStyle = currentDot.color
                 } else {
@@ -240,7 +240,7 @@ export default function useCanvas(myCanvasRef) {
     // 判断两个点是否太靠近 太近的点不要
     function isDistanceAllowed(path, x, y) {
         const min = 5;
-        console.log(path);
+        //console.log(path);
         if(path.pos==undefined){
             return true;
         }

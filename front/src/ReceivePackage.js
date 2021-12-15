@@ -33,10 +33,10 @@ async function dome() {
         let pack = fetchPacket()
         if(pack!=null){
             let userState = gdata.userStates[pack.uid];
-            console.log("Process package")
+            //console.log("Process package")
             userState.processPackage(pack);
-            console.log(userState);
-            console.log(gdata.canvasStack);
+            //console.log(userState);
+            //console.log(gdata.canvasStack);
             if(gdata.canvasDirty){
                 self.drawLine();
                 gdata.canvasDirty=false;

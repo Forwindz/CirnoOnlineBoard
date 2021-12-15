@@ -93,11 +93,18 @@ io.on('connection', function (socket) {
 
     socket.on('data', (msg) => {
         msg["stime"] = getTime(); //server time
-        console.log("Receive data from " + uid + " -> " + JSON.stringify(msg));
+        //console.log("Receive data from " + uid + " -> " + JSON.stringify(msg));
         msg["uid"] = uid; // sender id
-        storeList.push(msg);
         //socket.broadcast.emit('data', msg);
         io.emit('data', msg);
+        if(msg.data.eventName){
+            if(msg.data.eventName=="MouseMove"){
+                if(!msg.data.isDragging){ //filter useless data
+                    return;
+                }
+            }
+        }
+        storeList.push(msg);
     });
 });
 
