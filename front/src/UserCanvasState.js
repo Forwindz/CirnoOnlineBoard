@@ -30,6 +30,7 @@ class UserCanvasState{
         pushedPath.globalIndex = 0;
         this.stack.push(pushedPath);
         gdata.canvasStack.push(pushedPath);
+        console.log(gdata.canvasStack);
     }
 
     popStackLast(){
@@ -73,7 +74,7 @@ class UserCanvasState{
     
     undoMouseMove(e){
         if(e.data.isDragging){
-            this.path.pop();
+            this.path.pos.pop();
             gdata.canvasDirty=true;
         }
     }
@@ -81,10 +82,11 @@ class UserCanvasState{
 
     onMouseUp(e){
         this.path = {}
+        this.path.pos = []
     }
 
     undoMouseUp(e){
-        this.path=stack[-1];
+        this.path=this.stack[this.stack.length-1];
     }
 
     onLineWidthChange(e){
@@ -132,7 +134,6 @@ class UserCanvasState{
         }else{
             funcName = "on"+funcName;
         }
-        //console.log("Invoke "+funcName);
         this[funcName](e);
     }
 

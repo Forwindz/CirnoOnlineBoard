@@ -174,23 +174,29 @@ export default function useCanvas(myCanvasRef) {
     }
     
 
-    const play = () => {
-        const taskList = stack.flat()
-        const totalStep = taskList.length
-        let currentStep = 0
+    let keepAnimation = false;
 
+    const play = () => {
+        const taskList = gdata.canvasStack;
+        keepAnimation=true;
+        let currentStep = 0;
+        currentStep=0;
         const animate = () => {
             currentStep += 1
+            let count=0;
             clearRect()
-            for (let i = 0; i < currentStep; i++) {
-                const currentDot = taskList[i]
-                if (currentDot.width) {
-                    //console.log(currentDot.style)
-                    myCanvasCtx.lineWidth = currentDot.width
-                    myCanvasCtx.strokeStyle = currentDot.color
-                } else {
-                    const lastDot = taskList[i - 1], nextDot = taskList[i + 1]
-                    if (lastDot.width) {
+            for (let ix = 0; ix < taskList.length && currentStep>count; ix++) {
+                let i=ix-1;
+                if(i==-1){
+                    i=taskList.length-1;
+                }
+                myCanvasCtx.lineWidth = taskList[i].width
+                myCanvasCtx.strokeStyle = taskList[i].color
+                for(let j=0;j<taskList[i].pos.length;j++){
+                    count++;
+                    const currentDot = taskList[i].pos[j]
+                    const lastDot = taskList[i].pos[j - 1], nextDot = taskList[i].pos[j + 1]
+                    if (j==0) {
                         // 当前点为该路径起点
                         myCanvasCtx.beginPath()
                         myCanvasCtx.moveTo(currentDot.x, currentDot.y)
@@ -200,21 +206,28 @@ export default function useCanvas(myCanvasRef) {
                         let x3 = x1 / 2 + x2 / 2, y3 = y1 / 2 + y2 / 2
                         myCanvasCtx.quadraticCurveTo(x1, y1, x3, y3)
                     }
-                    if ((i === currentStep - 1) || nextDot.width) {
+                    if ((j === taskList[i].pos.length - 1) || taskList[i].pos.length ==1 ||currentStep<=count) {
                         // 当前点为该路径终点
                         myCanvasCtx.lineTo(currentDot.x, currentDot.y)
                         myCanvasCtx.stroke()
+                    }
+                    if(currentStep<=count)
+                    {
+                        break;
+                    }
+                    if(ix==taskList.length-1 && j==taskList[i].pos.length - 1){
+                        keepAnimation = false;
                     }
                 }
             }
 
             // 动画打断
-            if (isDrawing) return drawLine()
+            if (isDrawing) {keepAnimation=false;return drawLine()}
 
-            if (currentStep < totalStep) requestAnimationFrame(animate)
+            if (keepAnimation) requestAnimationFrame(animate)
         }
 
-        if (totalStep) requestAnimationFrame(animate)
+        if (keepAnimation) requestAnimationFrame(animate)
     }
 
     const downloadPng = () => {
