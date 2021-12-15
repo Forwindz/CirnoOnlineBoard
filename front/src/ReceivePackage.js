@@ -8,9 +8,11 @@ gdata.userStates = {};
 gdata.userList.addUserEvent.add((source,info)=>{
     if(info.uid == gdata.uid){
         gdata.userStates[info.uid] = self.selfUserState;
+        gdata.userStates[info.uid].uid = gdata.uid;
         return;
     }
-    gdata.userStates[info.uid] = new UserCanvasState();
+    gdata.userStates[info.uid] = new UserCanvasState(info.uid);
+    gdata.userStates[info.uid].uid = info.uid;
 });
 
 gdata.userList.removeUserEvent.add((source,info)=>{

@@ -5,6 +5,8 @@ class UserInfo {
         this.representColor = "#000"
         this.nick = "User"
         this.userState= {}
+        this.x=0;
+        this.y=0;
     }
     //TODO: add more like nick name or avatar color
 }

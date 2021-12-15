@@ -1,30 +1,60 @@
 <template>
-    <div>
-        <component
-          v-for="(item,index) in comName"
-          :is="Cursor"
+    <div style="pointer-events:none;">
+        <Cursor
+          v-for="(it, index) in cursorsData"
           :key="index"
-          :item="item"
-        ></component>
+          :nick="it.nick"
+          :color="it.color"
+          :x="it.x"
+          :y="it.y"
+          :index="index"
+        />
     </div>
 </template>
 
 <script>
+import { ref } from '@vue/reactivity'
 import Cursor from "./Cursor.vue"
 import gdata from "./data/rawData"
+import AttrManager from './utils/ValueChangeManager.js'
 export default {
     name:"Cursors",
     components:{
         Cursor
     },
-    data() {
+    data:()=>{
         return {
-            cursorsData: []
-        };
+            cursorsData:[]
+        }
     },
-    setup() {
-        gdata.userList.bindAttr(this.cursorsData);
+    methods:{
     },
+    created() {
+        gdata.userList.addUserEvent.add((source,e)=>{
+                this.cursorsData.push(e);
+                AttrManager.addPropertyListener(e,"x",()=>{this.$forceUpdate()});
+                AttrManager.addPropertyListener(e,"y",()=>{this.$forceUpdate()});
+            });
+            gdata.userList.removeUserEvent.remove((source,userInfo)=>{
+            let i=0;
+            for (;i<this.cursorsData.length;i++){
+              if(this.cursorsData[i].uid==userInfo.uid){
+                break;
+              }
+            }
+            if(i<this.cursorsData.length){
+              this.cursorsData = this.cursorsData.splice(i,1);
+            }
+        });
+    },
+    watch:{
+        cursorsData:function(newv,oldv){
+            console.log(newv);
+            console.log(oldv);
+        }
+    },
+    computed:{
+    }
 }
 </script>
 

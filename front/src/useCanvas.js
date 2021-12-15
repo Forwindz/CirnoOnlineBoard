@@ -21,6 +21,7 @@ export default function useCanvas(myCanvasRef) {
         myCanvasRef.value.height = document.documentElement.clientHeight
         gdata.width = document.documentElement.clientWidth
         gdata.height = document.documentElement.clientHeight
+        myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
     }
 
     const clearRect = () => {
@@ -93,7 +94,7 @@ export default function useCanvas(myCanvasRef) {
 
         socket.sendData(pack);
 
-        myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
+        //myCanvasRef.value.addEventListener('mousemove', handleMousemove, { passive: true })
         myCanvasRef.value.addEventListener('mouseup', handleMouseup)
     }
 
@@ -106,6 +107,7 @@ export default function useCanvas(myCanvasRef) {
             pack.eventName= "MouseMove";
             pack.x=x;
             pack.y=y;
+            pack.isDragging=isDrawing;
             socket.sendData(pack);
         }
     }
@@ -117,7 +119,7 @@ export default function useCanvas(myCanvasRef) {
         pack.eventName= "MouseUp";
         socket.sendData(pack);
 
-        myCanvasRef.value.removeEventListener('mousemove', handleMousemove)
+        //myCanvasRef.value.removeEventListener('mousemove', handleMousemove)
         myCanvasRef.value.removeEventListener('mouseup', handleMouseup)
     }
 
@@ -239,6 +241,9 @@ export default function useCanvas(myCanvasRef) {
     function isDistanceAllowed(path, x, y) {
         const min = 5;
         console.log(path);
+        if(path.pos==undefined){
+            return true;
+        }
         if(path.pos.length==0){
             return true;
         }

@@ -8,6 +8,7 @@ class UserCanvasState{
         this.path={};
         this.path.pos=[];
         this.stack = [];
+        this.uid = 0;
     }
 
     //brute force
@@ -66,13 +67,20 @@ class UserCanvasState{
     };
 
     onMouseMove(e){
-        this.path.pos.push({ x:e.data.x, y:e.data.y });
-        gdata.canvasDirty=true;
+        if(e.data.isDragging){
+            this.path.pos.push({ x:e.data.x, y:e.data.y });
+            gdata.canvasDirty=true;
+        }
+        
+        gdata.userList.users[this.uid].x=e.data.x;
+        gdata.userList.users[this.uid].y=e.data.y;
     }
     
     undoMouseMove(e){
-        this.path.pop();
-        gdata.canvasDirty=true;
+        if(e.data.isDragging){
+            this.path.pop();
+            gdata.canvasDirty=true;
+        }
     }
 
 

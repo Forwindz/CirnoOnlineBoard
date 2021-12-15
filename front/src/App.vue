@@ -1,4 +1,5 @@
 <template>
+    <Cursors/>
     <canvas id="myCanvas" ref="myCanvasRef" @mousedown="handleMousedown" @touchstart="handleTouchstart" />
     <Sidebar
         v-model:lineWidth="lineWidth"
@@ -19,9 +20,11 @@
     import gdata from './data/rawData'
     import UserListPanel from './UserListPanel.vue'
     import {dome} from './ReceivePackage'
+    import Cursors from "./Cursors.vue"
+    import Cursor from "./Cursor.vue"
 
     export default {
-        components: { Sidebar,UserListPanel },
+        components: { Sidebar,UserListPanel,Cursors, Cursor },
         setup () {
             const myCanvasRef = ref(null)
 
