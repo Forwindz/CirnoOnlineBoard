@@ -1,11 +1,11 @@
 <template>
     <div v-bind:style = "posStyle" v-if="gdata.uid!=uid">
-        <svg style="width:18px;height:18px">
+        <svg style="width:18px;height:18px" transform="translate(-4,-4)">
             <g>
                 <polygon class="lineStyle" v-bind:style="svgStyle" points="7 6 12 18 14 13 19 11 7 6"/>
             </g>
         </svg>
-        <span class="mouseText">{{shortNick}}</span>
+        <span class="mouseText" v-bind:style="mouseStyle">{{shortNick}}</span>
     </div>
 </template>
 
@@ -16,6 +16,7 @@ export default {
     name:"Cursor",
     props:{
         color:String,
+        hintColor:String,
         nick:String,
         x:[String,Number],
         y:[String,Number],
@@ -38,13 +39,16 @@ export default {
             return "stroke:"+this.edgeColor+";fill:"+this.fillColor+";";
         },
         posStyle(){
-            return "padding:"+this.y+"px "+this.x+"px; position:fixed;pointer-events:none;display: inline-block;width:36px;height:24px"
+            return "padding:"+this.y+"px "+this.x+"px; position:fixed;pointer-events:none;display: inline-block;width:36px;height:24px;margin: 0px 0px"
         },
         shortNick(){
             if(this.nick.length>7){
                 return this.nick.substring(0,6);
             }
             return this.nick;
+        },
+        mouseStyle(){
+            return "color:"+this.hintColor+";";
         }
     }
 }

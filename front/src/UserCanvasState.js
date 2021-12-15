@@ -36,17 +36,12 @@ class UserCanvasState{
         if(this.stack.length==0){
             return null;
         }
-        //console.log(gdata.canvasStack);
-        //console.log(this.stack);
         let lastPath = this.stack[this.stack.length-1];
         gdata.canvasStack.splice(lastPath.globalIndex,1);
         for(let j=lastPath.globalIndex;j<gdata.canvasStack.length;j++){
             gdata.canvasStack[j].globalIndex--;
         }
         this.stack.pop();
-        //console.log(lastPath);
-        //console.log(gdata.canvasStack);
-        //console.log(this.stack);
         return lastPath;
     }
 
@@ -102,10 +97,12 @@ class UserCanvasState{
     
     onStrokeColorChange(e){
         this.strokeColor = e.data.newv;
+        gdata.userList.users[this.uid].hintColor=e.data.newv;
     }
     
     undoStrokeColorChange(e){
         this.strokeColor = e.data.oldv;
+        gdata.userList.users[this.uid].hintColor=e.data.oldv;
     }
 
     onRevoke(e){

@@ -7,6 +7,7 @@ class UserInfo {
         this.userState= {}
         this.x=0;
         this.y=0;
+        this.hintColor ="#000";
     }
     //TODO: add more like nick name or avatar color
 }

@@ -5,6 +5,7 @@
           :key="index"
           :nick="it.nick"
           :color="it.color"
+          :hintColor="it.hintColor"
           :x="it.x"
           :y="it.y"
           :uid="it.uid"
@@ -35,6 +36,7 @@ export default {
                 this.cursorsData.push(e);
                 AttrManager.addPropertyListener(e,"x",()=>{this.$forceUpdate()});
                 AttrManager.addPropertyListener(e,"y",()=>{this.$forceUpdate()});
+                AttrManager.addPropertyListener(e,"hintColor",()=>{this.$forceUpdate()});
             });
             gdata.userList.removeUserEvent.remove((source,userInfo)=>{
             let i=0;
